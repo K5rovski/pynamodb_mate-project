@@ -7,6 +7,7 @@ Since the content of big Binary or Unicode are not stored in DynamoDB, we
 cannot use custom attriubte ``pynamodb.attributes.Attribute`` to implement it.
 """
 
+import os
 import zlib
 from base64 import b64encode, b64decode
 
@@ -173,7 +174,8 @@ class S3BackedMixin(object):  # type: typing.Type[Model]
         if cls._s3_client is None:
             pynamodb_connection = cls._get_connection().connection
             cls._s3_client = pynamodb_connection.session.create_client(
-                "s3", pynamodb_connection.region)
+                "s3", pynamodb_connection.region,
+                endpoint_url=os.environ.get('S3_ENDPOINT_URL', None))
         return cls._s3_client
 
     def atomic_save(self,
