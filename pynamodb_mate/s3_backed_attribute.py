@@ -19,6 +19,10 @@ try:
 except:
     pass
 
+s3_endpoint = None
+if 'S3_PORT' in os.environ:
+    s3_endpoint = 'http://{}:{}'.format(
+        os.environ['SLS_OFF_HOST'], os.environ['S3_PORT'] )
 
 def s3_key_safe_b64encode(text):
     return b64encode(text.encode("utf-8")).decode("utf-8").replace("=", "")
@@ -175,7 +179,7 @@ class S3BackedMixin(object):  # type: typing.Type[Model]
             pynamodb_connection = cls._get_connection().connection
             cls._s3_client = pynamodb_connection.session.create_client(
                 "s3", pynamodb_connection.region,
-                endpoint_url=os.environ.get('S3_ENDPOINT_URL', None))
+                endpoint_url=s3_endpoint)
         return cls._s3_client
 
     def atomic_save(self,
